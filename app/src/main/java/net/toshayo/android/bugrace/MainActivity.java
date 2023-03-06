@@ -11,10 +11,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Bind the game and the scene
-        BaseSprite.carDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_launcher_background, null);
-        Game game = new Game();
-        GameScene scene = findViewById(R.id.mainScene);
-        scene.setGame(game);
+        // Set the car sprite
+        BaseSprite.carDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.car, null);
     }
 }

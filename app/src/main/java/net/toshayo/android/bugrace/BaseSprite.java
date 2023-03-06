@@ -1,9 +1,6 @@
 package net.toshayo.android.bugrace;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
 public class BaseSprite {
@@ -30,7 +27,7 @@ public class BaseSprite {
     }
 
     public void draw(Canvas canvas) {
-        carDrawable.setBounds(x, y, width, height);
+        carDrawable.setBounds(x, y, x + width, y + height);
         carDrawable.draw(canvas);
     }
 }
