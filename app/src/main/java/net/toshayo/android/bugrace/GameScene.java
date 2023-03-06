@@ -15,7 +15,9 @@ import java.util.Timer;
 
 public class GameScene extends View implements IUpdatable {
     public static final int INTERVAL = 1000 / 20;
-    private final List<IDrawable> _sprites;
+    private final List<EnemyCar> _enemyCars;
+    private Player _player;
+    private World _world;
     private boolean _isInitialized;
     private final Paint painter;
     private int _collisionTicks;
@@ -27,7 +29,7 @@ public class GameScene extends View implements IUpdatable {
         UpdateGameTask task = new UpdateGameTask(this);
         timer.schedule(task, 0, INTERVAL);
 
-        _sprites = new ArrayList<>();
+        _enemyCars = new ArrayList<>();
         painter = new Paint();
         painter.setColor(Color.CYAN);
         painter.setStyle(Paint.Style.FILL);
@@ -36,27 +38,13 @@ public class GameScene extends View implements IUpdatable {
 
     public void update() {
         int step = (int)(getHeight() * (_collisionTicks > 0 ? 0.005 : 0.01));
-        for(IDrawable sprite : _sprites) {
-            if(sprite instanceof Player) {
-                Player player = (Player) sprite;
-                for(IDrawable otherSprite : _sprites) {
-                    if(otherSprite instanceof EnemyCar) {
-                        EnemyCar car = (EnemyCar) otherSprite;
-                        if(player.intersectsWith(car)) {
-                            _collisionTicks = (int)(3 * (1000F / INTERVAL));
-                        }
-                    }
-                }
+        for(EnemyCar enemyCar : _enemyCars) {
+            if(_player.intersectsWith(enemyCar)) {
+                _collisionTicks = (int)(3 * (1000F / INTERVAL));
             }
-            if(sprite instanceof EnemyCar) {
-                EnemyCar car = (EnemyCar) sprite;
-                car.y += step;
-            }
-            if(sprite instanceof World) {
-                World world = (World) sprite;
-                world.move(step);
-            }
+            enemyCar.y += step;
         }
+        _world.move(step);
         if(_collisionTicks > 0)
             _collisionTicks -= 1;
         // Redraw the scene
@@ -64,9 +52,9 @@ public class GameScene extends View implements IUpdatable {
     }
 
     private void init(int width, int height) {
-        _sprites.clear();
-        _sprites.add(new Player(ResourcesCompat.getDrawable(getResources(), R.drawable.car, null), width / 2, (int)(height * 0.9), (int)(width * 0.1), (int)(width * 0.2)));
-        _sprites.add(new World());
+        _enemyCars.clear();
+        _player = new Player(ResourcesCompat.getDrawable(getResources(), R.drawable.car, null), width / 2, (int)(height * 0.9), (int)(width * 0.1), (int)(width * 0.2));
+        _world = new World(ResourcesCompat.getDrawable(getResources(), R.drawable.track, null));
         _isInitialized = true;
     }
 
@@ -76,7 +64,9 @@ public class GameScene extends View implements IUpdatable {
             init(getWidth(), getHeight());
         super.onDraw(canvas);
         canvas.drawRect(0, 0, getWidth(), getHeight(), painter);
-        for(IDrawable sprite : _sprites)
+        _world.draw(canvas);
+        for(IDrawable sprite : _enemyCars)
             sprite.draw(canvas);
+        _player.draw(canvas);
     }
 }
