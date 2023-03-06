@@ -27,6 +27,10 @@ public class BaseSprite implements IDrawable {
         return y;
     }
 
+    public boolean intersectsWith(BaseSprite other) {
+        return !(x + width < other.x || other.x + other.width < x || y + height < other.y || other.y + other.height < y);
+    }
+
     @Override
     public void draw(Canvas canvas) {
         _sprite.setBounds(x, y, x + width, y + height);

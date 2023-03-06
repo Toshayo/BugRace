@@ -18,6 +18,7 @@ public class GameScene extends View implements IUpdatable {
     private final List<IDrawable> _sprites;
     private boolean _isInitialized;
     private final Paint painter;
+    private int _collisionTicks;
 
     public GameScene(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -30,23 +31,41 @@ public class GameScene extends View implements IUpdatable {
         painter = new Paint();
         painter.setColor(Color.CYAN);
         painter.setStyle(Paint.Style.FILL);
+        _collisionTicks = 0;
     }
 
     public void update() {
-        int step = (int)(getHeight() * 0.01);
+        int step = (int)(getHeight() * (_collisionTicks > 0 ? 0.005 : 0.01));
         for(IDrawable sprite : _sprites) {
+            if(sprite instanceof Player) {
+                Player player = (Player) sprite;
+                for(IDrawable otherSprite : _sprites) {
+                    if(otherSprite instanceof EnemyCar) {
+                        EnemyCar car = (EnemyCar) otherSprite;
+                        if(player.intersectsWith(car)) {
+                            _collisionTicks = (int)(3 * (1000F / INTERVAL));
+                        }
+                    }
+                }
+            }
             if(sprite instanceof EnemyCar) {
-                EnemyCar car = ((EnemyCar) sprite);
+                EnemyCar car = (EnemyCar) sprite;
                 car.y += step;
             }
+            if(sprite instanceof World) {
+                World world = (World) sprite;
+                world.move(step);
+            }
         }
+        if(_collisionTicks > 0)
+            _collisionTicks -= 1;
         // Redraw the scene
         invalidate();
     }
 
     private void init(int width, int height) {
         _sprites.clear();
-        _sprites.add(new BaseSprite(ResourcesCompat.getDrawable(getResources(), R.drawable.car, null), width / 2, (int)(height * 0.9), (int)(width * 0.1), (int)(width * 0.2)));
+        _sprites.add(new Player(ResourcesCompat.getDrawable(getResources(), R.drawable.car, null), width / 2, (int)(height * 0.9), (int)(width * 0.1), (int)(width * 0.2)));
         _sprites.add(new World());
         _isInitialized = true;
     }
