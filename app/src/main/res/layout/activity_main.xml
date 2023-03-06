@@ -7,7 +7,7 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <View
+    <net.toshayo.android.bugrace.GameScene
         android:id="@+id/mainScene"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
