@@ -18,14 +18,19 @@ buildDebug:
   stage: build
   script:
     - ./gradlew assembleDebug
+    - cp app/build/outputs/apk/debug/app-debug.apk app-debug.apk
+  artifacts:
+    when: on_success
+    paths:
+      - app-debug.apk
 
 buildRelease:
   stage: build
   script:
     - echo $KEYSTORE_FILE | base64 -d > keystore
     - ./gradlew assembleRelease -Pandroid.injected.signing.store.file=$CI_PROJECT_DIR/keystore -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD -Pandroid.injected.signing.key.alias=$KEY_ALIAS -Pandroid.injected.signing.key.password=$KEY_PASSWORD
-    - cp -R app/build/outputs/apk/release release
+    - cp app/build/outputs/apk/release/app-release.apk app-release.apk
   artifacts:
     when: on_success
     paths:
-      - release
+      - app-release.apk
