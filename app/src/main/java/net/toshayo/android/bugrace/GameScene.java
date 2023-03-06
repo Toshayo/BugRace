@@ -16,8 +16,8 @@ import java.util.Timer;
 public class GameScene extends View implements IUpdatable {
     public static final int INTERVAL = 1000 / 20;
     private final List<EnemyCar> _enemyCars;
-    private Player _player;
-    private World _world;
+    private final Player _player;
+    private final World _world;
     private boolean _isInitialized;
     private final Paint painter;
     private int _collisionTicks;
@@ -25,19 +25,21 @@ public class GameScene extends View implements IUpdatable {
     public GameScene(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        Timer timer = new Timer();
-        UpdateGameTask task = new UpdateGameTask(this);
-        timer.schedule(task, 0, INTERVAL);
-
+        _player = new Player(ResourcesCompat.getDrawable(getResources(), R.drawable.car, null), 0, 0, 0, 0);
+        _world = new World(ResourcesCompat.getDrawable(getResources(), R.drawable.track, null));
         _enemyCars = new ArrayList<>();
         painter = new Paint();
         painter.setColor(Color.CYAN);
         painter.setStyle(Paint.Style.FILL);
         _collisionTicks = 0;
+
+        Timer timer = new Timer();
+        UpdateGameTask task = new UpdateGameTask(this);
+        timer.schedule(task, 0, INTERVAL);
     }
 
     public void update() {
-        int step = (int)(getHeight() * (_collisionTicks > 0 ? 0.005 : 0.01));
+        int step = (int)(getHeight() * (_collisionTicks > 0 ? 0.01 : 0.1));
         for(EnemyCar enemyCar : _enemyCars) {
             if(_player.intersectsWith(enemyCar)) {
                 _collisionTicks = (int)(3 * (1000F / INTERVAL));
@@ -53,8 +55,8 @@ public class GameScene extends View implements IUpdatable {
 
     private void init(int width, int height) {
         _enemyCars.clear();
-        _player = new Player(ResourcesCompat.getDrawable(getResources(), R.drawable.car, null), width / 2, (int)(height * 0.9), (int)(width * 0.1), (int)(width * 0.2));
-        _world = new World(ResourcesCompat.getDrawable(getResources(), R.drawable.track, null));
+        _player.setSize((int)(width * 0.1), (int)(width * 0.2));
+        _player.setPosition(width / 2, (int)(height * 0.9));
         _isInitialized = true;
     }
 

@@ -19,12 +19,9 @@ public class BaseSprite implements IDrawable {
         this.y = y;
     }
 
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
+    public void setSize(int width, int height) {
+        this.width = width;
+        this.height = height;
     }
 
     public boolean intersectsWith(BaseSprite other) {
