@@ -48,6 +48,7 @@ public class GameScene extends View implements IUpdatable {
         }
         _world.move(step);
         _player.update();
+        _player.keepInBounds(_world.getWidth(), _world.getHeight());
         if(_collisionTicks > 0)
             _collisionTicks -= 1;
         // Redraw the scene

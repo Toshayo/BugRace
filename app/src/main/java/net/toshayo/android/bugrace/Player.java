@@ -17,4 +17,12 @@ public class Player extends BaseSprite implements IUpdatable {
     public void update() {
         x += _movement;
     }
+
+    public void keepInBounds(int width, int height) {
+        if(x - this.width < 0) {
+            x = this.width;
+        } else if(x + this.width * 2 > width) {
+            x = width - this.width * 2;
+        }
+    }
 }

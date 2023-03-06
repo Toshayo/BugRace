@@ -19,6 +19,14 @@ public class World implements IDrawable {
         _y %= _worldChunkSprite.getIntrinsicHeight();
     }
 
+    public int getWidth() {
+        return _world != null ? _world.getWidth() : 0;
+    }
+
+    public int getHeight() {
+        return _world != null ? _world.getHeight() - _worldChunkSprite.getIntrinsicHeight() : 0;
+    }
+
     @Override
     public void draw(Canvas canvas) {
         if(_world == null) {
