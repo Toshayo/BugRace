@@ -47,6 +47,7 @@ public class GameScene extends View implements IUpdatable {
             enemyCar.y += step;
         }
         _world.move(step);
+        _player.update();
         if(_collisionTicks > 0)
             _collisionTicks -= 1;
         // Redraw the scene
@@ -56,7 +57,7 @@ public class GameScene extends View implements IUpdatable {
     private void init(int width, int height) {
         _enemyCars.clear();
         _player.setSize((int)(width * 0.1), (int)(width * 0.2));
-        _player.setPosition(width / 2, (int)(height * 0.9));
+        _player.setPosition(width / 2, (int)(height * 0.85));
         _isInitialized = true;
     }
 
@@ -70,5 +71,18 @@ public class GameScene extends View implements IUpdatable {
         for(IDrawable sprite : _enemyCars)
             sprite.draw(canvas);
         _player.draw(canvas);
+    }
+
+
+    public void moveLeft() {
+        _player.setMovement((int)(getWidth() * -0.015));
+    }
+
+    public void moveRight() {
+        _player.setMovement((int)(getWidth() * 0.015));
+    }
+
+    public void stopMovement() {
+        _player.setMovement(0);
     }
 }
