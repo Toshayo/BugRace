@@ -15,12 +15,13 @@ import java.util.Timer;
 
 public class GameScene extends View implements IUpdatable {
     public static final int INTERVAL = 1000 / 20;
+    public static final int THREE_SECONDS_DELAY = (int)(3 * (1000F / INTERVAL));
     private final List<EnemyCar> _enemyCars;
     private final Player _player;
     private final World _world;
     private boolean _isInitialized;
     private final Paint painter;
-    private int _collisionTicks;
+    private int _collisionTicks, _carSpawnTicks, carWidth, carHeight;
 
     public GameScene(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -32,6 +33,7 @@ public class GameScene extends View implements IUpdatable {
         painter.setColor(Color.CYAN);
         painter.setStyle(Paint.Style.FILL);
         _collisionTicks = 0;
+        _carSpawnTicks = THREE_SECONDS_DELAY * 3;
 
         Timer timer = new Timer();
         UpdateGameTask task = new UpdateGameTask(this);
@@ -42,7 +44,7 @@ public class GameScene extends View implements IUpdatable {
         int step = (int)(getHeight() * (_collisionTicks > 0 ? 0.01 : 0.1));
         for(EnemyCar enemyCar : _enemyCars) {
             if(_player.intersectsWith(enemyCar)) {
-                _collisionTicks = (int)(3 * (1000F / INTERVAL));
+                _collisionTicks = THREE_SECONDS_DELAY;
             }
             enemyCar.y += step;
         }
@@ -51,13 +53,27 @@ public class GameScene extends View implements IUpdatable {
         _player.keepInBounds(_world.getWidth(), _world.getHeight());
         if(_collisionTicks > 0)
             _collisionTicks -= 1;
+        if(_carSpawnTicks > 0)
+            _carSpawnTicks -= 1;
+        if(_carSpawnTicks <= 0) {
+            _enemyCars.add(new EnemyCar(
+                    ResourcesCompat.getDrawable(getResources(), R.drawable.car_red, null),
+                    (int)(Math.random() * (getWidth() - 2 * _player.width) + _player.width),
+                    0,
+                    carWidth,
+                    carHeight
+            ));
+            _carSpawnTicks = THREE_SECONDS_DELAY * 3;
+        }
         // Redraw the scene
         invalidate();
     }
 
     private void init(int width, int height) {
         _enemyCars.clear();
-        _player.setSize((int)(width * 0.1), (int)(width * 0.2));
+        carWidth = (int)(width * 0.1);
+        carHeight = (int)(width * 0.2);
+        _player.setSize(carWidth, carHeight);
         _player.setPosition(width / 2, (int)(height * 0.85));
         _isInitialized = true;
     }
