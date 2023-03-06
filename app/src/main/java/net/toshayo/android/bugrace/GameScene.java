@@ -16,6 +16,7 @@ public class GameScene extends View {
 
     public void setGame(Game game) {
         _game = game;
+        _game.init(getWidth(), getHeight());
     }
 
     @Override
