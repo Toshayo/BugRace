@@ -23,9 +23,16 @@ public class GameScene extends View implements IUpdatable {
     private final Paint painter;
     private int _collisionTicks, _carSpawnTicks, carWidth, carHeight;
 
+    private final Paint paint;
+
+
     public GameScene(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(50);
+        paint.setTextAlign(Paint.Align.CENTER);
         _player = new Player(ResourcesCompat.getDrawable(getResources(), R.drawable.car, null), 0, 0, 0, 0);
         _world = new World(ResourcesCompat.getDrawable(getResources(), R.drawable.track, null));
         _enemyCars = new ArrayList<>();
@@ -88,15 +95,16 @@ public class GameScene extends View implements IUpdatable {
         for(IDrawable sprite : _enemyCars)
             sprite.draw(canvas);
         _player.draw(canvas);
+        canvas.drawText("SCORE : 0", getWidth() / 2F, paint.getTextSize(), paint);
     }
 
 
     public void moveLeft() {
-        _player.setMovement((int)(getWidth() * -0.015));
+        _player.setMovement((int)(getWidth() * -0.025));
     }
 
     public void moveRight() {
-        _player.setMovement((int)(getWidth() * 0.015));
+        _player.setMovement((int)(getWidth() * 0.025));
     }
 
     public void stopMovement() {
