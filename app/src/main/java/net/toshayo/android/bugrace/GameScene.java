@@ -41,7 +41,7 @@ public class GameScene extends View implements IUpdatable {
     }
 
     public void update() {
-        int step = (int)(getHeight() * (_collisionTicks > 0 ? 0.01 : 0.1));
+        int step = (int)(getHeight() * (_collisionTicks > 0 ? 0.05 : 0.1));
         for(EnemyCar enemyCar : _enemyCars) {
             if(_player.intersectsWith(enemyCar)) {
                 _collisionTicks = TWO_SECONDS_DELAY;
@@ -58,7 +58,7 @@ public class GameScene extends View implements IUpdatable {
         if(_carSpawnTicks <= 0) {
             _enemyCars.add(new EnemyCar(
                     ResourcesCompat.getDrawable(getResources(), R.drawable.car_red, null),
-                    (int)(Math.random() * (getWidth() - 2 * _player.width) + _player.width),
+                    (int)(Math.random() * (getWidth() - 3 * _player.width) + _player.width),
                     0,
                     carWidth,
                     carHeight
