@@ -3,11 +3,12 @@ package net.toshayo.android.bugrace;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 
-public class BaseSprite {
-    public static Drawable carDrawable;
+public class BaseSprite implements IDrawable {
+    private final Drawable _sprite;
     protected int x, y, width, height;
 
-    protected BaseSprite(int x, int y, int width, int height) {
+    protected BaseSprite(Drawable sprite, int x, int y, int width, int height) {
+        _sprite = sprite;
         setPosition(x, y);
         this.width = width;
         this.height = height;
@@ -26,8 +27,9 @@ public class BaseSprite {
         return y;
     }
 
+    @Override
     public void draw(Canvas canvas) {
-        carDrawable.setBounds(x, y, x + width, y + height);
-        carDrawable.draw(canvas);
+        _sprite.setBounds(x, y, x + width, y + height);
+        _sprite.draw(canvas);
     }
 }

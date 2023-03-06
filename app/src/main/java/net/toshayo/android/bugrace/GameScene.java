@@ -7,13 +7,15 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.core.content.res.ResourcesCompat;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
 public class GameScene extends View implements IUpdatable {
     public static final int INTERVAL = 1000 / 20;
-    private final List<BaseSprite> _sprites;
+    private final List<IDrawable> _sprites;
     private boolean _isInitialized;
     private final Paint painter;
 
@@ -31,13 +33,21 @@ public class GameScene extends View implements IUpdatable {
     }
 
     public void update() {
+        int step = (int)(getHeight() * 0.01);
+        for(IDrawable sprite : _sprites) {
+            if(sprite instanceof EnemyCar) {
+                EnemyCar car = ((EnemyCar) sprite);
+                car.y += step;
+            }
+        }
         // Redraw the scene
         invalidate();
     }
 
     private void init(int width, int height) {
         _sprites.clear();
-        _sprites.add(new BaseSprite(width / 2, (int)(height * 0.9), (int)(width * 0.1), (int)(width * 0.2)));
+        _sprites.add(new BaseSprite(ResourcesCompat.getDrawable(getResources(), R.drawable.car, null), width / 2, (int)(height * 0.9), (int)(width * 0.1), (int)(width * 0.2)));
+        _sprites.add(new World());
         _isInitialized = true;
     }
 
@@ -47,7 +57,7 @@ public class GameScene extends View implements IUpdatable {
             init(getWidth(), getHeight());
         super.onDraw(canvas);
         canvas.drawRect(0, 0, getWidth(), getHeight(), painter);
-        for(BaseSprite sprite : _sprites)
+        for(IDrawable sprite : _sprites)
             sprite.draw(canvas);
     }
 }
