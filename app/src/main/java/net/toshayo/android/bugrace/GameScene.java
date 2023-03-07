@@ -11,16 +11,18 @@ import androidx.core.content.res.ResourcesCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Timer;
 
 public class GameScene extends View implements IUpdatable {
     public static final int INTERVAL = 1000 / 20;
     private int _score;
     public static final int TWO_SECONDS_DELAY = (int)(2 * (1000F / INTERVAL));
-    private final List<EnemyCar> _enemyCars;
+    private final List<Enemy> _enemies;
     private final Player _player;
     private final World _world;
 
+    private final List<Integer> listTypeEnemies = new ArrayList<Integer>(){};
 
     private boolean _isInitialized;
     private final Paint painter;
@@ -30,7 +32,8 @@ public class GameScene extends View implements IUpdatable {
 
     public GameScene(Context context, AttributeSet attrs) {
         super(context, attrs);
-
+        listTypeEnemies.add(R.drawable.car_red);
+        listTypeEnemies.add(R.drawable.oil);
         _score = 0;
         paint = new Paint();
         paint.setColor(Color.WHITE);
@@ -38,7 +41,7 @@ public class GameScene extends View implements IUpdatable {
         paint.setTextAlign(Paint.Align.CENTER);
         _player = new Player(ResourcesCompat.getDrawable(getResources(), R.drawable.car, null), 0, 0, 0, 0);
         _world = new World(ResourcesCompat.getDrawable(getResources(), R.drawable.track, null));
-        _enemyCars = new ArrayList<>();
+        _enemies = new ArrayList<>();
         painter = new Paint();
         painter.setColor(Color.CYAN);
         painter.setStyle(Paint.Style.FILL);
@@ -58,20 +61,20 @@ public class GameScene extends View implements IUpdatable {
         }
 
         int step = (int)(getHeight() * (_collisionTicks > 0 ? 0.05 : 0.1));
-        List<EnemyCar> toRemove = new ArrayList<>();
-        for(EnemyCar enemyCar : _enemyCars) {
-            if(_player.intersectsWith(enemyCar)) {
+        List<Enemy> toRemove = new ArrayList<>();
+        for(Enemy enemy : _enemies) {
+            if(_player.intersectsWith(enemy)) {
                 if(!(_collisionTicks > 0)){
                     _player.lostALife();
                     _collisionTicks = TWO_SECONDS_DELAY;
                 }
             }
-            enemyCar.y += step;
-            if(enemyCar.y > getHeight()) {
-                toRemove.add(enemyCar);
+            enemy.y += step;
+            if(enemy.y > getHeight()) {
+                toRemove.add(enemy);
             }
         }
-        _enemyCars.removeAll(toRemove);
+        _enemies.removeAll(toRemove);
 
         _world.move(step);
         _player.update();
@@ -87,8 +90,8 @@ public class GameScene extends View implements IUpdatable {
         if(_carSpawnTicks > 0)
             _carSpawnTicks -= 1;
         if(_carSpawnTicks <= 0) {
-            _enemyCars.add(new EnemyCar(
-                    ResourcesCompat.getDrawable(getResources(), R.drawable.car_red, null),
+            _enemies.add(new Enemy(
+                    ResourcesCompat.getDrawable(getResources(),  getRandomElement(listTypeEnemies) , null),
                     (int)(Math.random() * (getWidth() - 3 * _player.width) + _player.width),
                     0,
                     carWidth,
@@ -105,7 +108,7 @@ public class GameScene extends View implements IUpdatable {
     }
 
     private void init(int width, int height) {
-        _enemyCars.clear();
+        _enemies.clear();
         carWidth = (int)(width * 0.1);
         carHeight = (int)(width * 0.2);
         _player.setSize(carWidth, carHeight);
@@ -120,7 +123,7 @@ public class GameScene extends View implements IUpdatable {
         super.onDraw(canvas);
         canvas.drawRect(0, 0, getWidth(), getHeight(), painter);
         _world.draw(canvas);
-        for(IDrawable sprite : _enemyCars)
+        for(IDrawable sprite : _enemies)
             sprite.draw(canvas);
         _player.draw(canvas);
         canvas.drawText("SCORE : " + _score, getWidth() / 2F, paint.getTextSize(), paint);
@@ -141,5 +144,10 @@ public class GameScene extends View implements IUpdatable {
 
     private void resetCarSpawnTime() {
         _carSpawnTicks = (int)(TWO_SECONDS_DELAY * 0.5F);
+    }
+
+    public int getRandomElement(List<Integer> list) {
+        Random rand = new Random();
+        return list.get(rand.nextInt(list.size()));
     }
 }

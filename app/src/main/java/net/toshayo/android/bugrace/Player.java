@@ -6,7 +6,7 @@ import android.graphics.drawable.Drawable;
 public class Player extends BaseSprite implements IUpdatable {
     private int _movement;
     private int _damaged;
-    private int _life = 3;
+    private int _life = 5;
 
     protected Player(Drawable sprite, int x, int y, int width, int height) {
         super(sprite, x, y, width, height);
