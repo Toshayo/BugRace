@@ -15,10 +15,13 @@ import java.util.Timer;
 
 public class GameScene extends View implements IUpdatable {
     public static final int INTERVAL = 1000 / 20;
+    private int _score;
     public static final int TWO_SECONDS_DELAY = (int)(2 * (1000F / INTERVAL));
     private final List<EnemyCar> _enemyCars;
     private final Player _player;
     private final World _world;
+
+
     private boolean _isInitialized;
     private final Paint painter;
     private int _collisionTicks, _carSpawnTicks, carWidth, carHeight;
@@ -28,6 +31,7 @@ public class GameScene extends View implements IUpdatable {
     public GameScene(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        _score = 0;
         paint = new Paint();
         paint.setColor(Color.WHITE);
         paint.setTextSize(50);
@@ -47,11 +51,20 @@ public class GameScene extends View implements IUpdatable {
     }
 
     public void update() {
+        if(!_player.isAlive()) {
+            gameOver();
+        } else {
+            _score++;
+        }
+
         int step = (int)(getHeight() * (_collisionTicks > 0 ? 0.05 : 0.1));
         List<EnemyCar> toRemove = new ArrayList<>();
         for(EnemyCar enemyCar : _enemyCars) {
             if(_player.intersectsWith(enemyCar)) {
-                _collisionTicks = TWO_SECONDS_DELAY;
+                if(!(_collisionTicks > 0)){
+                    _player.lostALife();
+                    _collisionTicks = TWO_SECONDS_DELAY;
+                }
             }
             enemyCar.y += step;
             if(enemyCar.y > getHeight()) {
@@ -63,8 +76,14 @@ public class GameScene extends View implements IUpdatable {
         _world.move(step);
         _player.update();
         _player.keepInBounds(_world.getWidth(), _world.getHeight());
-        if(_collisionTicks > 0)
-            _collisionTicks -= 1;
+        if(_collisionTicks > 0) {
+            if (_collisionTicks % 10 == 0) {
+                _player.setDamaged(1);
+            }
+        } else {
+            _player.setDamaged(0);
+        }
+        _collisionTicks -= 1;
         if(_carSpawnTicks > 0)
             _carSpawnTicks -= 1;
         if(_carSpawnTicks <= 0) {
@@ -79,6 +98,10 @@ public class GameScene extends View implements IUpdatable {
         }
         // Redraw the scene
         invalidate();
+    }
+
+    public void gameOver() {
+
     }
 
     private void init(int width, int height) {
@@ -100,15 +123,16 @@ public class GameScene extends View implements IUpdatable {
         for(IDrawable sprite : _enemyCars)
             sprite.draw(canvas);
         _player.draw(canvas);
-        canvas.drawText("SCORE : 0", getWidth() / 2F, paint.getTextSize(), paint);
+        canvas.drawText("SCORE : " + _score, getWidth() / 2F, paint.getTextSize(), paint);
+        canvas.drawText("LIFE : " + _player.getLife(), getWidth() * 0.1F, paint.getTextSize(), paint);
     }
 
     public void moveLeft() {
-        _player.setMovement((int)(getWidth() * -0.025));
+        _player.setMovement((int)(getWidth() * -0.035));
     }
 
     public void moveRight() {
-        _player.setMovement((int)(getWidth() * 0.025));
+        _player.setMovement((int)(getWidth() * 0.035));
     }
 
     public void stopMovement() {
