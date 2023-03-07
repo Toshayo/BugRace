@@ -79,9 +79,9 @@ public class GameScene extends View implements IUpdatable {
         if(_collisionTicks > 0) {
             if (_collisionTicks % 10 == 0) {
                 _player.setDamaged(1);
+            } else {
+                _player.setDamaged(0);
             }
-        } else {
-            _player.setDamaged(0);
         }
         _collisionTicks -= 1;
         if(_carSpawnTicks > 0)
