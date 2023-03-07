@@ -25,7 +25,6 @@ public class GameScene extends View implements IUpdatable {
 
     private final Paint paint;
 
-
     public GameScene(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -49,12 +48,18 @@ public class GameScene extends View implements IUpdatable {
 
     public void update() {
         int step = (int)(getHeight() * (_collisionTicks > 0 ? 0.05 : 0.1));
+        List<EnemyCar> toRemove = new ArrayList<>();
         for(EnemyCar enemyCar : _enemyCars) {
             if(_player.intersectsWith(enemyCar)) {
                 _collisionTicks = TWO_SECONDS_DELAY;
             }
             enemyCar.y += step;
+            if(enemyCar.y > getHeight()) {
+                toRemove.add(enemyCar);
+            }
         }
+        _enemyCars.removeAll(toRemove);
+
         _world.move(step);
         _player.update();
         _player.keepInBounds(_world.getWidth(), _world.getHeight());
@@ -97,7 +102,6 @@ public class GameScene extends View implements IUpdatable {
         _player.draw(canvas);
         canvas.drawText("SCORE : 0", getWidth() / 2F, paint.getTextSize(), paint);
     }
-
 
     public void moveLeft() {
         _player.setMovement((int)(getWidth() * -0.025));
