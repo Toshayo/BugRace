@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 
-public class GameScene extends View implements IUpdatable {
+public class GameScene extends View implements IUpdatable, IObservable {
     public static final int INTERVAL = 1000 / 20;
     private int _score;
     public static final int TWO_SECONDS_DELAY = (int)(2 * (1000F / INTERVAL));
@@ -32,9 +32,12 @@ public class GameScene extends View implements IUpdatable {
 
     private final Paint paint;
     private final MediaPlayer _mediaPlayer;
+    private final Timer _timer;
+    private final List<IObserver> _observers;
 
     public GameScene(Context context, AttributeSet attrs) {
         super(context, attrs);
+        _observers = new ArrayList<>();
         listTypeEnemies.add(R.drawable.car_red);
         listTypeEnemies.add(R.drawable.oil);
         _score = 0;
@@ -53,14 +56,15 @@ public class GameScene extends View implements IUpdatable {
 
         _mediaPlayer = MediaPlayer.create(context, R.raw.bgm);
 
-        Timer timer = new Timer();
+        _timer = new Timer();
         UpdateGameTask task = new UpdateGameTask(this);
-        timer.schedule(task, 0, INTERVAL);
+        _timer.schedule(task, 0, INTERVAL);
     }
 
     public void update() {
         if(!_player.isAlive()) {
             gameOver();
+            return;
         } else {
             _score++;
         }
@@ -109,7 +113,9 @@ public class GameScene extends View implements IUpdatable {
     }
 
     public void gameOver() {
-
+        _mediaPlayer.stop();
+        _timer.cancel();
+        notifyObservers();
     }
 
     private void init(int width, int height) {
@@ -123,6 +129,7 @@ public class GameScene extends View implements IUpdatable {
         } catch (IOException|IllegalStateException e) {
             e.printStackTrace();
         }
+        _mediaPlayer.setLooping(true);
         _mediaPlayer.start();
         _isInitialized = true;
     }
@@ -160,5 +167,30 @@ public class GameScene extends View implements IUpdatable {
     public int getRandomElement(List<Integer> list) {
         Random rand = new Random();
         return list.get(rand.nextInt(list.size()));
+    }
+
+    @Override
+    public void attach(IObserver observer) {
+        if(_observers.contains(observer)) {
+            return;
+        }
+
+        _observers.add(observer);
+    }
+
+    @Override
+    public void detach(IObserver observer) {
+        _observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        for(IObserver observer : _observers) {
+            observer.update(this);
+        }
+    }
+
+    public int getScore() {
+        return _score;
     }
 }

@@ -1,12 +1,12 @@
 package net.toshayo.android.bugrace;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements IObserver {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,5 +26,14 @@ public class MainActivity extends AppCompatActivity {
             v.performClick();
             return true;
         });
+
+        ((GameScene) findViewById(R.id.mainScene)).attach(this);
+    }
+
+    @Override
+    public void update(Object... args) {
+        Intent intent = new Intent(this, GameOverActivity.class);
+        intent.putExtra("score", ((GameScene) args[0]).getScore());
+        startActivity(intent);
     }
 }
