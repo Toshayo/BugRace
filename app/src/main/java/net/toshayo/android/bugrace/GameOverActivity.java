@@ -18,7 +18,10 @@ public class GameOverActivity extends AppCompatActivity {
         MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.game_over);
         mediaPlayer.start();
 
-        ((TextView)findViewById(R.id.lblScore)).setText(getString(R.string.lblScore, getIntent().getIntExtra("score", 0)));
+        if(getIntent().hasExtra("score"))
+            ((TextView)findViewById(R.id.lblScore)).setText(getString(R.string.lblScore, getIntent().getIntExtra("score", 0)));
+        else
+            ((TextView)findViewById(R.id.lblScore)).setText("");
 
         findViewById(R.id.btnStart).setOnClickListener(v -> {
             startActivity(new Intent(this, MainActivity.class));
