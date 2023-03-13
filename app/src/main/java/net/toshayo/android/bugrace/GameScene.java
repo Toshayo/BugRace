@@ -4,11 +4,13 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.media.MediaPlayer;
 import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.core.content.res.ResourcesCompat;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -29,6 +31,7 @@ public class GameScene extends View implements IUpdatable {
     private int _collisionTicks, _carSpawnTicks, carWidth, carHeight;
 
     private final Paint paint;
+    private final MediaPlayer _mediaPlayer;
 
     public GameScene(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -47,6 +50,8 @@ public class GameScene extends View implements IUpdatable {
         painter.setStyle(Paint.Style.FILL);
         _collisionTicks = 0;
         resetCarSpawnTime();
+
+        _mediaPlayer = MediaPlayer.create(context, R.raw.bgm);
 
         Timer timer = new Timer();
         UpdateGameTask task = new UpdateGameTask(this);
@@ -113,6 +118,12 @@ public class GameScene extends View implements IUpdatable {
         carHeight = (int)(width * 0.2);
         _player.setSize(carWidth, carHeight);
         _player.setPosition(width / 2, (int)(height * 0.85));
+        try {
+            _mediaPlayer.prepare();
+        } catch (IOException|IllegalStateException e) {
+            e.printStackTrace();
+        }
+        _mediaPlayer.start();
         _isInitialized = true;
     }
 
