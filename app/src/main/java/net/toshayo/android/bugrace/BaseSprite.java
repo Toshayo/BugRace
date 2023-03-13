@@ -1,17 +1,29 @@
 package net.toshayo.android.bugrace;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
+import android.graphics.Paint;
+import android.graphics.Rect;
 
 public class BaseSprite implements IDrawable {
-    private final Drawable _sprite;
-    protected int x, y, width, height;
+    private final Bitmap _sprite;
+    protected int x, y, width, height, tick;
+    protected int maxTick;
+    protected Paint paint;
 
-    protected BaseSprite(Drawable sprite, int x, int y, int width, int height) {
+    protected BaseSprite(Bitmap sprite, int x, int y, int width, int height, boolean isAnimatedSprite) {
         _sprite = sprite;
         setPosition(x, y);
         this.width = width;
         this.height = height;
+        this.tick = 0;
+        this.maxTick = isAnimatedSprite ? 10 * sprite.getWidth() / sprite.getHeight() : 0;
+
+        paint = new Paint();
+    }
+
+    protected BaseSprite(Bitmap sprite, int x, int y, int width, int height) {
+        this(sprite, x, y, width, height, false);
     }
 
     public void setPosition(int x, int y) {
@@ -33,7 +45,11 @@ public class BaseSprite implements IDrawable {
 
     @Override
     public void draw(Canvas canvas) {
-        _sprite.setBounds(x, y, x + width, y + height);
-        _sprite.draw(canvas);
+        if(maxTick > 0) {
+            tick += 1;
+            tick %= maxTick;
+        }
+        int x = _sprite.getWidth() * (tick / 10);
+        canvas.drawBitmap(_sprite, new Rect(x, 0, maxTick > 0 ? x + _sprite.getHeight() : _sprite.getWidth(), _sprite.getHeight()), new Rect(this.x, y, this.x+width, y+height), paint);
     }
 }

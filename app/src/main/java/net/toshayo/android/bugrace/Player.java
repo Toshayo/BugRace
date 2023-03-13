@@ -1,5 +1,6 @@
 package net.toshayo.android.bugrace;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 
@@ -8,7 +9,7 @@ public class Player extends BaseSprite implements IUpdatable {
     private int _damaged;
     private int _life = 5;
 
-    protected Player(Drawable sprite, int x, int y, int width, int height) {
+    protected Player(Bitmap sprite, int x, int y, int width, int height) {
         super(sprite, x, y, width, height);
 
     }

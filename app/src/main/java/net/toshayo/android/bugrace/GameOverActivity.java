@@ -15,6 +15,9 @@ public class GameOverActivity extends AppCompatActivity {
 
         ((TextView)findViewById(R.id.lblScore)).setText(getString(R.string.lblScore, getIntent().getIntExtra("score", 0)));
 
-        findViewById(R.id.btnStart).setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
+        findViewById(R.id.btnStart).setOnClickListener(v -> {
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        });
     }
 }

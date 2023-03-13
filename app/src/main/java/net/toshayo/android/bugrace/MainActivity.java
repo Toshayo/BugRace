@@ -31,9 +31,22 @@ public class MainActivity extends AppCompatActivity implements IObserver {
     }
 
     @Override
+    protected void onResume() {
+        ((GameScene) findViewById(R.id.mainScene)).resume();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        ((GameScene) findViewById(R.id.mainScene)).pause();
+        super.onPause();
+    }
+
+    @Override
     public void update(Object... args) {
         Intent intent = new Intent(this, GameOverActivity.class);
         intent.putExtra("score", ((GameScene) args[0]).getScore());
         startActivity(intent);
+        finish();
     }
 }

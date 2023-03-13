@@ -1,6 +1,8 @@
 package net.toshayo.android.bugrace;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -12,7 +14,9 @@ import androidx.core.content.res.ResourcesCompat;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 
@@ -24,9 +28,11 @@ public class GameScene extends View implements IUpdatable, IObservable {
     private final Player _player;
     private final World _world;
 
-    private final List<Integer> listTypeEnemies = new ArrayList<Integer>(){};
+    private final List<Integer> listTypeEnemies;
 
-    private boolean _isInitialized;
+    private final Map<Integer, Bitmap> _cachedSprites;
+
+    private boolean _isInitialized, _isPaused;
     private final Paint painter;
     private int _collisionTicks, _carSpawnTicks, carWidth, carHeight;
 
@@ -34,18 +40,24 @@ public class GameScene extends View implements IUpdatable, IObservable {
     private final MediaPlayer _mediaPlayer;
     private final Timer _timer;
     private final List<IObserver> _observers;
+    private final Random _rnd;
 
     public GameScene(Context context, AttributeSet attrs) {
         super(context, attrs);
+        _rnd = new Random();
+        _isPaused = false;
         _observers = new ArrayList<>();
-        listTypeEnemies.add(R.drawable.car_red);
-        listTypeEnemies.add(R.drawable.oil);
+        listTypeEnemies = List.of(R.drawable.car_red, R.drawable.oil, R.drawable.bug);
+        _cachedSprites = new HashMap<>();
+        for(int id : listTypeEnemies) {
+            _cachedSprites.put(id, BitmapFactory.decodeResource(getResources(), id));
+        }
         _score = 0;
         paint = new Paint();
         paint.setColor(Color.WHITE);
         paint.setTextSize(50);
         paint.setTextAlign(Paint.Align.CENTER);
-        _player = new Player(ResourcesCompat.getDrawable(getResources(), R.drawable.car, null), 0, 0, 0, 0);
+        _player = new Player(BitmapFactory.decodeResource(getResources(), R.drawable.car), 0, 0, 0, 0);
         _world = new World(ResourcesCompat.getDrawable(getResources(), R.drawable.track, null));
         _enemies = new ArrayList<>();
         painter = new Paint();
@@ -61,7 +73,21 @@ public class GameScene extends View implements IUpdatable, IObservable {
         _timer.schedule(task, 0, INTERVAL);
     }
 
+    public void pause() {
+        _isPaused = true;
+        _mediaPlayer.pause();
+    }
+
+    public void resume() {
+        _isPaused = false;
+        _mediaPlayer.start();
+    }
+
     public void update() {
+        if(_isPaused) {
+            return;
+        }
+
         if(!_player.isAlive()) {
             gameOver();
             return;
@@ -99,12 +125,14 @@ public class GameScene extends View implements IUpdatable, IObservable {
         if(_carSpawnTicks > 0)
             _carSpawnTicks -= 1;
         if(_carSpawnTicks <= 0) {
+            int randomEnemy = getRandomElement(listTypeEnemies);
             _enemies.add(new Enemy(
-                    ResourcesCompat.getDrawable(getResources(),  getRandomElement(listTypeEnemies) , null),
+                    _cachedSprites.get(randomEnemy),
                     (int)(Math.random() * (getWidth() - 3 * _player.width) + _player.width),
                     0,
                     carWidth,
-                    carHeight
+                    carHeight,
+                    randomEnemy == R.drawable.bug
             ));
             resetCarSpawnTime();
         }
@@ -165,8 +193,7 @@ public class GameScene extends View implements IUpdatable, IObservable {
     }
 
     public int getRandomElement(List<Integer> list) {
-        Random rand = new Random();
-        return list.get(rand.nextInt(list.size()));
+        return list.get(_rnd.nextInt(list.size()));
     }
 
     @Override
