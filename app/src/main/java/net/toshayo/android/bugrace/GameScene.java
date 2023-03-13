@@ -158,7 +158,7 @@ public class GameScene extends View implements IUpdatable, IObservable {
         try {
             _mediaPlayer.prepare();
             _diePlayer.prepare();
-            _diePlayer.setVolume(0.1F, 0.1F);
+            _diePlayer.setVolume(0.05F, 0.05F);
         } catch (IOException|IllegalStateException e) {
             e.printStackTrace();
         }
