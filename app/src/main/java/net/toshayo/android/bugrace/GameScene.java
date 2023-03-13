@@ -38,6 +38,8 @@ public class GameScene extends View implements IUpdatable, IObservable {
 
     private final Paint paint;
     private final MediaPlayer _mediaPlayer;
+
+    private final MediaPlayer _diePlayer;
     private final Timer _timer;
     private final List<IObserver> _observers;
     private final Random _rnd;
@@ -67,7 +69,7 @@ public class GameScene extends View implements IUpdatable, IObservable {
         resetCarSpawnTime();
 
         _mediaPlayer = MediaPlayer.create(context, R.raw.bgm);
-
+        _diePlayer = MediaPlayer.create(context, R.raw.drift);
         _timer = new Timer();
         UpdateGameTask task = new UpdateGameTask(this);
         _timer.schedule(task, 0, INTERVAL);
@@ -101,6 +103,7 @@ public class GameScene extends View implements IUpdatable, IObservable {
             if(_player.intersectsWith(enemy)) {
                 if(!(_collisionTicks > 0)){
                     _player.lostALife();
+                    _diePlayer.start();
                     _collisionTicks = TWO_SECONDS_DELAY;
                 }
             }
@@ -154,6 +157,8 @@ public class GameScene extends View implements IUpdatable, IObservable {
         _player.setPosition(width / 2, (int)(height * 0.85));
         try {
             _mediaPlayer.prepare();
+            _diePlayer.prepare();
+            _diePlayer.setVolume(0.1F, 0.1F);
         } catch (IOException|IllegalStateException e) {
             e.printStackTrace();
         }
