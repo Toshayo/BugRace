@@ -17,7 +17,7 @@ public class BaseSprite implements IDrawable {
         this.width = width;
         this.height = height;
         this.tick = 0;
-        this.maxTick = isAnimatedSprite ? 10 * sprite.getWidth() / sprite.getHeight() : 0;
+        this.maxTick = isAnimatedSprite ? sprite.getWidth() / sprite.getHeight() : 0;
 
         paint = new Paint();
     }
@@ -49,7 +49,7 @@ public class BaseSprite implements IDrawable {
             tick += 1;
             tick %= maxTick;
         }
-        int x = _sprite.getWidth() * (tick / 10);
+        int x = _sprite.getHeight() * tick;
         canvas.drawBitmap(_sprite, new Rect(x, 0, maxTick > 0 ? x + _sprite.getHeight() : _sprite.getWidth(), _sprite.getHeight()), new Rect(this.x, y, this.x+width, y+height), paint);
     }
 }

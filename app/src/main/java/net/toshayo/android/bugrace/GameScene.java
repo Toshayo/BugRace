@@ -22,7 +22,9 @@ import java.util.Timer;
 
 public class GameScene extends View implements IUpdatable, IObservable {
     public static final int INTERVAL = 1000 / 20;
+    public static final double INITIAL_SPEED = 0.0875 ;
     private int _score;
+    private double _speed;
     public static final int TWO_SECONDS_DELAY = (int)(2 * (1000F / INTERVAL));
     private final List<Enemy> _enemies;
     private final Player _player;
@@ -55,6 +57,7 @@ public class GameScene extends View implements IUpdatable, IObservable {
             _cachedSprites.put(id, BitmapFactory.decodeResource(getResources(), id));
         }
         _score = 0;
+        _speed = INITIAL_SPEED;
         paint = new Paint();
         paint.setColor(Color.WHITE);
         paint.setTextSize(50);
@@ -86,6 +89,10 @@ public class GameScene extends View implements IUpdatable, IObservable {
     }
 
     public void update() {
+        if(_speed < 0.4){
+            _speed += 0.0001;
+        }
+
         if(_isPaused) {
             return;
         }
@@ -97,23 +104,24 @@ public class GameScene extends View implements IUpdatable, IObservable {
             _score++;
         }
 
-        int step = (int)(getHeight() * (_collisionTicks > 0 ? 0.05 : 0.1));
+        int step = (int)(getHeight() * (_collisionTicks > 0 ? 0.05 : _speed));
         List<Enemy> toRemove = new ArrayList<>();
         for(Enemy enemy : _enemies) {
             if(_player.intersectsWith(enemy)) {
                 if(!(_collisionTicks > 0)){
                     _player.lostALife();
+                    _speed = Math.max(_speed * 0.9, INITIAL_SPEED);
+
                     _diePlayer.start();
                     _collisionTicks = TWO_SECONDS_DELAY;
                 }
             }
-            enemy.y += step;
+            enemy.y += step * (enemy.isMoving ? 0.5 : 1);
             if(enemy.y > getHeight()) {
                 toRemove.add(enemy);
             }
         }
         _enemies.removeAll(toRemove);
-
         _world.move(step);
         _player.update();
         _player.keepInBounds(_world.getWidth(), _world.getHeight());
@@ -135,7 +143,8 @@ public class GameScene extends View implements IUpdatable, IObservable {
                     0,
                     carWidth,
                     carHeight,
-                    randomEnemy == R.drawable.bug
+                    randomEnemy == R.drawable.bug,
+                    randomEnemy != R.drawable.oil
             ));
             resetCarSpawnTime();
         }
@@ -178,6 +187,7 @@ public class GameScene extends View implements IUpdatable, IObservable {
             sprite.draw(canvas);
         _player.draw(canvas);
         canvas.drawText("SCORE : " + _score, getWidth() / 2F, paint.getTextSize(), paint);
+        canvas.drawText("SPEED : " + Math.round(_speed * 1000.0)  , getWidth() * 0.85F, paint.getTextSize(), paint);
         canvas.drawText("LIFE : " + _player.getLife(), getWidth() * 0.1F, paint.getTextSize(), paint);
     }
 
